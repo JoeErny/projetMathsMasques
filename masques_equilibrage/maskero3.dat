@@ -1,0 +1,29 @@
+NbTowns = 3;
+
+LotSize = 3;
+PenaltyUnderStockTarget = 1000;
+TransportCostPerUnitPerKm = 1;
+
+TownsName = ["A", "B", "C"];
+
+Stock =
+[
+	18,18,14
+];
+
+DemandPreviousYear =
+[
+	32,25,43
+];
+
+LoadCoast =
+[
+	300,300,300
+];
+
+Distance =
+[
+[0,3,4],
+[3,0,5],
+[4,5,0]
+];
