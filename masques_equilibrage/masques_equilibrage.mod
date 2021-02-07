@@ -25,6 +25,7 @@ dvar float FinalStock[Towns]; //Stock final
 dvar float TargetStock[Towns]; //Stock visé
 dvar float TotalPreviousYearStock; //N-1
 dvar float+ TotalTargetStock; //stock cible total
+dvar float TotalActualStock; //stock actuel total
 dvar float TotalFinalStock; //stock final total
 dvar boolean HasPenalty[Towns]; //ville a pénalité
 
@@ -43,12 +44,12 @@ subject to {
 	sum (i in Towns) DemandPreviousYear[i] == TotalPreviousYearStock;
 	
 	//Définir stock total
-	sum (i in Towns) Stock[i] == TotalFinalStock;
+	sum (i in Towns) Stock[i] == TotalActualStock;
 	
 	
 	//Définir le sock ciblé de la ville
-	forall( i in Towns:TotalFinalStock>0) {
-		DemandPreviousYear[i] * (TotalPreviousYearStock/TotalStock) == TargetStock[i];
+	forall( i in Towns:TotalActualStock>0) {
+		DemandPreviousYear[i] * (TotalPreviousYearStock/TotalActualStock) == TargetStock[i];
 	}
 	
 	
@@ -58,7 +59,7 @@ subject to {
 	 
 	// Definir le tableau des villes qui ont une pénalité 
 	forall (i in Towns){
-		if (FinalStock[i]<TargetStock[i]){
+		if (Stock[i]<TargetStock[i]){
 	 		HasPenalty[i] == 1;
 	  	}
 	}
