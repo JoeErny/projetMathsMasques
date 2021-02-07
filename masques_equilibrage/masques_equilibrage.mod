@@ -38,7 +38,7 @@ subject to {
 	sum (i in Towns) TargetStock[i] == TotalTargetStock;
 	sum (i in Towns) DemandPreviousYear[i] == TotalPreviousYearStock;
 	sum (i in Towns) Stock[i] == TotalStock;
-	forall( i in Towns) {
+	forall( i in Towns:TotalStock>0) {
 		DemandPreviousYear[i] * (TotalPreviousYearStock/TotalStock) == TargetStock[i];
 	}
 	/*sum (i in Towns){

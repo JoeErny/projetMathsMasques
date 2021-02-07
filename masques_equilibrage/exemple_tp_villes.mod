@@ -29,7 +29,7 @@ subject to {
       Distances[i][j]x[i][j] <= z;
   }
 
-  forall(i in Villes, j in Villes) {
+  forall(i in Villes, j in Villes) { 
       x[i][j] <= y[i];
   }
 
