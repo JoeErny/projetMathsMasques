@@ -16,20 +16,37 @@ float Stock[Towns]=...; //S le stock courant dans l’entrepôt #i
 float DemandPreviousYear[Towns]=...; //P
 float LoadCoast[Towns]=...; //CC le coût de chargement, par entrepôt #i
 float Distance[Towns][Towns]=...; //D la distance de l’entrepôt #i vers l’entrepôt #j 
+float TotalDemandPreviousYear; //N-1
+float TotalActualStock; //stock actuel total
  
  //variables de décision
  
-dvar float+ TotalCost;
-dvar float+ CostBetweenTowns[Towns][Towns]; //Prix de trajet entre 2 villes
-dvar float FinalStock[Towns]; //Stock final
-dvar float TargetStock[Towns]; //Stock visé
-dvar float TotalPreviousYearStock; //N-1
-dvar float+ TotalTargetStock; //stock cible total
-dvar float TotalActualStock; //stock actuel total
-dvar float TotalFinalStock; //stock final total
-dvar boolean HasPenalty[Towns]; //ville a pénalité
+dvar float totalCost;
+dvar float costBetweenTowns[Towns][Towns]; //Prix de trajet entre 2 villes
+dvar float finalStock[Towns]; //Stock final
+dvar float targetStock[Towns]; //Stock visé
+dvar float totalTargetStock; //stock cible total
+dvar float totalFinalStock; //stock final total
+dvar boolean hasPenalty[Towns]; //ville a pénalité
+
+execute{
+  	
+  	
+  	TotalDemandPreviousYear = 0;
+  	TotalActualStock = 0;
+  	
+  	for(var i = 1 ; i<NbTowns; i++)
+  	{
+  	  TotalDemandPreviousYear+= DemandPreviousYear[i];
+  	 TotalActualStock+=  Stock[i];
+  	}
+  	
+}
+
 
 minimize TotalCost;
+
+//minimize Gap
  
 subject to {
 	//Calculer le coût entre 2 villes
@@ -40,21 +57,20 @@ subject to {
 	//Définir le cout total
 	sum (i in Towns, j in Towns) CostBetweenTowns[i][j] == TotalCost;
 	
-	//Définir le stock demandé total de l'an dernier
-	sum (i in Towns) DemandPreviousYear[i] == TotalPreviousYearStock;
-	
-	//Définir stock total
-	sum (i in Towns) Stock[i] == TotalActualStock;
-	
+//	//Définir le stock demandé total de l'an dernier
+//	sum (i in Towns) DemandPreviousYear[i] == TotalDemandPreviousYear;
+//	
+//	//Définir stock total actuel
+//	sum (i in Towns) Stock[i] == TotalActualStock;
+//	
 	
 	//Définir le sock ciblé de la ville
-	forall( i in Towns:TotalActualStock>0) {
-		DemandPreviousYear[i] * (TotalPreviousYearStock/TotalActualStock) == TargetStock[i];
+	forall( i in Towns) {
+		TotalActualStock * DemandPreviousYear[i] / TotalDemandPreviousYear == TargetStock[i];
 	}
 	
-	
 	// Definir sock ciblé total
-	sum (i in Towns) TargetStock[i] == TotalTargetStock;
+	//sum (i in Towns) TargetStock[i] == TotalTargetStock;
 
 	 
 	// Definir le tableau des villes qui ont une pénalité 
@@ -68,4 +84,6 @@ subject to {
 	forall (i in Towns){
 		TotalCost + (TargetStock[i] - Stock[i] * PenaltyUnderStockTarget) == TotalCost;
 	}
+	
+	//Variables d'écart du target stock (stock = deficit + surplus target stock)
 }
