@@ -37,25 +37,32 @@ execute{
   	
   	for(var i = 1 ; i<NbTowns; i++)
   	{
-  	  TotalDemandPreviousYear+= DemandPreviousYear[i];
-  	 TotalActualStock+=  Stock[i];
+  		TotalDemandPreviousYear+= DemandPreviousYear[i];
+  		TotalActualStock+=  Stock[i];
+  	
   	}
+  	
+  	for(var i = 1 ; i<NbTowns; i++)
+  	{
+  	  	TotalActualStock * DemandPreviousYear[i] / TotalDemandPreviousYear == targetStock[i];
+ 	}  	
+  		
   	
 }
 
 
-minimize TotalCost;
+minimize totalCost;
 
 //minimize Gap
  
 subject to {
 	//Calculer le coût entre 2 villes
 	forall (i in Towns, j in Towns){
-		LoadCoast[i] + (TransportCostPerUnitPerKm * Distance[i][j]) == CostBetweenTowns[i][j];
+		LoadCoast[i] + (TransportCostPerUnitPerKm * Distance[i][j]) == costBetweenTowns[i][j];
 	}
 	
 	//Définir le cout total
-	sum (i in Towns, j in Towns) CostBetweenTowns[i][j] == TotalCost;
+	sum (i in Towns, j in Towns) costBetweenTowns[i][j] == totalCost;
 	
 //	//Définir le stock demandé total de l'an dernier
 //	sum (i in Towns) DemandPreviousYear[i] == TotalDemandPreviousYear;
@@ -66,7 +73,7 @@ subject to {
 	
 	//Définir le sock ciblé de la ville
 	forall( i in Towns) {
-		TotalActualStock * DemandPreviousYear[i] / TotalDemandPreviousYear == TargetStock[i];
+		TotalActualStock * DemandPreviousYear[i] / TotalDemandPreviousYear == targetStock[i];
 	}
 	
 	// Definir sock ciblé total
@@ -75,14 +82,14 @@ subject to {
 	 
 	// Definir le tableau des villes qui ont une pénalité 
 	forall (i in Towns){
-		if (Stock[i]<TargetStock[i]){
-	 		HasPenalty[i] == 1;
+		if (Stock[i]<targetStock[i]){
+	 		hasPenalty[i] == 1;
 	  	}
 	}
 		 
 	//Ajouter la pénalité au cout total
 	forall (i in Towns){
-		TotalCost + (TargetStock[i] - Stock[i] * PenaltyUnderStockTarget) == TotalCost;
+		totalCost + (targetStock[i] - Stock[i] * PenaltyUnderStockTarget) == totalCost;
 	}
 	
 	//Variables d'écart du target stock (stock = deficit + surplus target stock)
