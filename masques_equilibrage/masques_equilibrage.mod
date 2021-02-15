@@ -22,8 +22,10 @@ float TotalActualStock; //stock actuel total
 float TargetStock[Towns]; //Stock visé
 float CostBetweenTowns[Towns][Towns]; //Prix de trajet entre 2 villes
 int HasPenalty[Towns];//ville a pénalité
+int HitTheRoad[Towns][Towns];
 float TotalCost;
- 
+
+int I = 0;
 // variables de décision ______________________________________________
  
 
@@ -64,28 +66,50 @@ execute{
 	  		}  	  
 	  	}
 	  	
+	  	
+//	  	//Hit the road or not
+//	  	for(var i = 1 ; i<=NbTowns; i++)
+//	  	{
+//	  	  	for(var j = 1 ; j<=NbTowns; j++)
+//	  		{
+//	  		  if(TargetStock[i] > Stock[i])
+//	  		  {
+//	  		    	HitTheRoad[i][j]= 1;
+//	  		  }
+//	  		  
+//	  		  if(i = 2)
+//	  		  {
+//	  		    I = Distance[i][j];
+//	  		  }
+//	  		 
+//	  		  	  
+//     		}		  
+//	  	}
+	  	
+	  	
+	  	
 	  	TotalCost = 0;
 	  	
 	  	for(var i = 1 ; i<=NbTowns; i++)
 	  	{
 	  	  	for(var j = 1 ; j<=NbTowns; j++)
 	  		{
-	  			TotalCost += CostBetweenTowns[i][j];				  				  	
+	  			TotalCost += CostBetweenTowns[i][j] * HitTheRoad[i][j];				  				  	
 	  		}  	  
 	  		//TotalCost = TotalCost + ((TargetStock[i] - Stock[i]) * PenaltyUnderStockTarget) ;
 	  	}
 	  		
 	  	for(var i = 1 ; i<=NbTowns; i++)
 	  	{
-	  	
-	  		 TotalCost = TotalCost + ((TargetStock[i] - Stock[i]) * PenaltyUnderStockTarget);
+	  	  
+	  		 TotalCost += (Stock[i] - TargetStock[i]) * 1000;
   		}	  	
 	  			 		
 }
 
 minimize TotalCost;
 
-//minimize Gap
+//minimize Gap between target stock and actual stock
  
 subject to {
 	//Calculer le coût entre 2 villes
