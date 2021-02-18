@@ -66,7 +66,7 @@ execute{
 	  		}  	  
 	  	}
 	  	
-	  	
+////	  	CTRL+MAj+/
 //	  	//Hit the road or not
 //	  	for(var i = 1 ; i<=NbTowns; i++)
 //	  	{
@@ -88,7 +88,7 @@ execute{
 	  	
 	  	
 	  	
-	  	TotalCost = 0;
+	  	//TotalCost = 0;
 	  	
 	  	for(var i = 1 ; i<=NbTowns; i++)
 	  	{
@@ -149,4 +149,6 @@ subject to {
 //	}
 	
 	//Variables d'écart du target stock (stock = deficit + surplus target stock)
+	
+	//Lot = 3 palettes
 }
