@@ -79,7 +79,7 @@ execute{
 	  	    
 	  	    for(var j = 1 ; j<=NbTowns; j++) // cherche ville qui peut fournir un lot à moindre cout
 	  		{  		  
-	  		  if(CostBetweenTowns[i][j]<temp) and (Stock[i]>TargetStock[i])
+	  		  if(CostBetweenTowns[i][j]<temp && Stock[i]>TargetStock[i])
 	  		  {
 	  		    temp = CostBetweenTowns[i][j];
 	  		    destinataire = i;
@@ -95,15 +95,15 @@ execute{
 	  	//Avoir le final stock de chaque ville
         for(var i = 1 ; i<=NbTowns; i++)
           {
-            FinalStock[i] = ActualStock[i] +
-            sum(x in Towns)
-             {
-                Flots[x][i];
+            var ajout;
+            var debit;
+            for(x in Towns)
+              {
+                ajout += Flots[x][i];
+                debit += Flots[i][x];
               }
-            - sum(x in Towns)
-            {
-              Flots[i][x];
-            }
+                         
+            FinalStock[i] = ActualStock[i] + ajout - debit;
           }
 
 
@@ -116,10 +116,7 @@ minimize sum(i in Towns,j in Towns) ((CostBetweenTowns[i][j] * Flots[i][j]) + (P
 subject to {
   
   //contrainte 1 lot = 3 palette
-  
 
-  
-  
   
 	
 }
