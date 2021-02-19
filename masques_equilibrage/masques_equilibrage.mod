@@ -69,17 +69,17 @@ execute{
 	  	}
 	  	
 	  	//flots choix
+	  	var temp = CostBetweenTowns[0][0];
+	  	var destinataire;
+	  	var expediteur;
+	  	
 	  	for(var i = 1 ; i<=NbTowns; i++)
 	  	{
 	  	  if(TargetStock[i] > Stock[i]) // check si ville à besoin de stock
 	  	  {
-	  	    var temp = CostBetweenTowns[i][1];
-	  	    var destinataire;
-	  	    var expediteur;
-	  	    
 	  	    for(var j = 1 ; j<=NbTowns; j++) // cherche ville qui peut fournir un lot à moindre cout
 	  		{  		  
-	  		  if(CostBetweenTowns[i][j]<temp && Stock[i]>TargetStock[i])
+	  		  if(CostBetweenTowns[i][j]<tempete && Stock[i]>TargetStock[i])
 	  		  {
 	  		    temp = CostBetweenTowns[i][j];
 	  		    destinataire = i;
@@ -88,10 +88,8 @@ execute{
    			}
    			// choix fait
    			Flots[expediteur][destinataire] += 3;	  			   			   			  			  			
-	  	  }
-	  	    
+	  	  }  	    
 	  	}
-	  	  	
 	  	//Avoir le final stock de chaque ville
         for(var i = 1 ; i<=NbTowns; i++)
           {
