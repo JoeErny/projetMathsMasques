@@ -21,16 +21,10 @@ float TotalDemandPreviousYear; //N-1
 float TotalActualStock; //stock actuel total
 float TargetStock[Towns]; //Stock visé
 float CostBetweenTowns[Towns][Towns]; //Prix de trajet entre 2 villes
-int HasPenalty[Towns];//ville a pénalité
-int HitTheRoad[Towns][Towns];
-float TotalCost;
 
-int I = 0;
+int NbLotSend[Towns][Towns]; // nb lot envoyé (expéditeur)
+int NbPenality[Towns][Towns];
 // variables de décision ______________________________________________
- 
-
-
-//dvar float totalTargetStock; //stock cible total
 
 
 
@@ -39,22 +33,26 @@ execute{
   	
 	  	TotalDemandPreviousYear = 0;
 	  	TotalActualStock = 0;
-  	
+	  	
+  		//Stock Actuel Total
 	  	for(var i = 1 ; i<=NbTowns; i++)
 	  	{
 	  		TotalDemandPreviousYear+= DemandPreviousYear[i];
 	  		TotalActualStock+=  Stock[i];
 	  		  	
 	  	}
-  	
+	  		  	
+	  	
+  		//Stock visé
 	  	for(var i = 1 ; i<=NbTowns; i++)
 	  	{
 	  	  	TargetStock[i] = TotalActualStock * DemandPreviousYear[i] / TotalDemandPreviousYear ;
 	 		if (Stock[i]<TargetStock[i]){
-	 			HasPenalty[i] = 1;
 	  		}
-	 	}  	
+	 	}  
+	 		
  		
+ 		//Cout de transport entre Entrepot
 		for(var i = 1 ; i<=NbTowns; i++)
 	  	{
 	  	  	for(var j = 1 ; j<=NbTowns; j++)
@@ -64,91 +62,16 @@ execute{
 	  		  		CostBetweenTowns[i][j] = LoadCoast[i] + (TransportCostPerUnitPerKm * Distance[i][j]);	  		  		  		  	  
 	  		  	}
 	  		}  	  
-	  	}
-	  	
-////	  	CTRL+MAj+/
-//	  	//Hit the road or not
-//	  	for(var i = 1 ; i<=NbTowns; i++)
-//	  	{
-//	  	  	for(var j = 1 ; j<=NbTowns; j++)
-//	  		{
-//	  		  if(TargetStock[i] > Stock[i])
-//	  		  {
-//	  		    	HitTheRoad[i][j]= 1;
-//	  		  }
-//	  		  
-//	  		  if(i = 2)
-//	  		  {
-//	  		    I = Distance[i][j];
-//	  		  }
-//	  		 
-//	  		  	  
-//     		}		  
-//	  	}
-	  	
-	  	
-	  	
-	  	//TotalCost = 0;
-	  	
-	  	for(var i = 1 ; i<=NbTowns; i++)
-	  	{
-	  	  	for(var j = 1 ; j<=NbTowns; j++)
-	  		{
-	  			TotalCost += CostBetweenTowns[i][j] * HitTheRoad[i][j];				  				  	
-	  		}  	  
-	  		//TotalCost = TotalCost + ((TargetStock[i] - Stock[i]) * PenaltyUnderStockTarget) ;
-	  	}
-	  		
-	  	for(var i = 1 ; i<=NbTowns; i++)
-	  	{
-	  	  
-	  		 TotalCost += (Stock[i] - TargetStock[i]) * 1000;
-  		}	  	
-	  			 		
+	  	}	  	
+			 		
 }
 
-minimize TotalCost;
+minimize sum(i in Towns,j in Towns) ((CostBetweenTowns[i][j] * NbLotSend[i][j]) + (PenaltyUnderStockTarget * NbPenality[i][j]));
 
-//minimize Gap between target stock and actual stock
  
 subject to {
-	//Calculer le coût entre 2 villes
-//	forall (i in Towns, j in Towns){
-//		LoadCoast[i] + (TransportCostPerUnitPerKm * Distance[i][j]) == CostBetweenTowns[i][j];
-//	}
+  
+  
+  
 	
-	//Définir le cout total
-//	sum (i in Towns, j in Towns) CostBetweenTowns[i][j] == totalCost;
-	
-//	//Définir le stock demandé total de l'an dernier
-//	sum (i in Towns) DemandPreviousYear[i] == TotalDemandPreviousYear;
-//	
-//	//Définir stock total actuel
-//	sum (i in Towns) Stock[i] == TotalActualStock;
-//	
-	
-	//Définir le sock ciblé de la ville
-//	forall( i in Towns) {
-//		TotalActualStock * DemandPreviousYear[i] / TotalDemandPreviousYear == targetStock[i];
-//	}
-	
-	// Definir sock ciblé total
-	//sum (i in Towns) TargetStock[i] == TotalTargetStock;
-
-	 
-	// Definir le tableau des villes qui ont une pénalité 
-//	forall (i in Towns){
-//		if (Stock[i]<TargetStock[i]){
-//	 		hasPenalty[i] == 1;
-//	  	}
-//	}
-		 
-	//Ajouter la pénalité au cout total
-//	forall (i in Towns){
-//		TotalCost + (TargetStock[i] - Stock[i] * PenaltyUnderStockTarget) == TotalCost;
-//	}
-	
-	//Variables d'écart du target stock (stock = deficit + surplus target stock)
-	
-	//Lot = 3 palettes
 }
