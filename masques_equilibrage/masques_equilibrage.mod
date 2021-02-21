@@ -54,8 +54,7 @@ execute{
 	  	{
 	  	  	TargetStock[i] = TotalActualStock * DemandPreviousYear[i] / TotalDemandPreviousYear ;
 	 	}  
-	 		
- 		
+	 	 		
  		//Cout de transport entre Entrepot
 		for(var i = 1 ; i<=NbTowns; i++)
 	  	{
@@ -68,8 +67,9 @@ execute{
 	  		}  	  
 	  	}
 	  	
+	  	
 	  	//flots choix
-	  	var temp = CostBetweenTowns[0][0];
+	  	var temp = 100;
 	  	var destinataire;
 	  	var expediteur;
 	  	
@@ -79,20 +79,22 @@ execute{
 	  	  {
 	  	    for(var j = 1 ; j<=NbTowns; j++) // cherche ville qui peut fournir un lot à moindre cout
 	  		{  		  
-	  		  if(CostBetweenTowns[i][j]<tempete && Stock[i]>TargetStock[i])
+	  		  if(CostBetweenTowns[i][j]<temp && Stock[i]>TargetStock[i])
 	  		  {
 	  		    temp = CostBetweenTowns[i][j];
 	  		    destinataire = i;
 	  		    expediteur = j;
-	  		  }	  		  	  		  	  		  	  		  
+	  		  }
+	  		  // choix fait
+   			  Flots[expediteur][destinataire] += 3;	  	  		  	  		  	  		  
    			}
-   			// choix fait
-   			Flots[expediteur][destinataire] += 3;	  			   			   			  			  			
+   			
 	  	  }  	    
 	  	}
+	  	
 	  	//Avoir le final stock de chaque ville
         for(var i = 1 ; i<=NbTowns; i++)
-          {
+        {
             var ajout;
             var debit;
             for(x in Towns)
@@ -100,20 +102,19 @@ execute{
                 ajout += Flots[x][i];
                 debit += Flots[i][x];
               }
-                         
-            FinalStock[i] = ActualStock[i] + ajout - debit;
-          }
-
-
+         
+            FinalStock[i] = Stock[i] + ajout - debit;
+        }
 
 }
 
 minimize sum(i in Towns,j in Towns) ((CostBetweenTowns[i][j] * Flots[i][j]) + (PenaltyUnderStockTarget * NbPenality[i]));
 
- 
+
 subject to {
   
   //contrainte 1 lot = 3 palette
+  
 
   
 	
