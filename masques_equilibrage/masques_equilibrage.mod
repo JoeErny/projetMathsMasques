@@ -41,6 +41,8 @@ execute{
 	  	var TotalDemandPreviousYear = 0;
 	  	var TotalActualStock = 0;
 	  	
+	
+	  	
   		//Stock Actuel Total
 	  	for(var i = 1 ; i<=NbTowns; i++)
 	  	{
@@ -70,11 +72,12 @@ execute{
 	  	
 	  	//flots choix
 	  	var temp = 100;
-	  	var destinataire;
-	  	var expediteur;
+  		var destinataire = 1;
+	  	var expediteur = 1;
 	  	
 	  	for(var i = 1 ; i<=NbTowns; i++)
 	  	{
+	
 	  	  if(TargetStock[i] > Stock[i]) // check si ville à besoin de stock
 	  	  {
 	  	    for(var j = 1 ; j<=NbTowns; j++) // cherche ville qui peut fournir un lot à moindre cout
@@ -82,12 +85,21 @@ execute{
 	  		  if(CostBetweenTowns[i][j]<temp && Stock[i]>TargetStock[i])
 	  		  {
 	  		    temp = CostBetweenTowns[i][j];
-	   			 Flots[i][j] = 3;	
+	  		    
+	  		   	expediteur  =i;
+	  		   	destinataire = j;
+	  		  
+	  		    
+	   			
 	  		  }
-   		  	  		  	  		  	  		  
+	  		  
+   		  	  		  	  		  
    			}
+   				Flots[expediteur][destinataire] = 3; 
+   		
    			
 	  	  }  	    
+	  	   	
 	  	}
 	  	
 	  	//Avoir le final stock de chaque ville
