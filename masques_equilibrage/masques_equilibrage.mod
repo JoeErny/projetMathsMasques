@@ -80,30 +80,35 @@ execute{
 	  	  TempStock[x] = Stock[x];
     	}	  	  
 	  	
-	  	
-	  	
-	  	
-	  	for(var i = 1 ; i<=NbTowns; i++)
+
+	var i = 1;
+  	while(i<=NbTowns)
 	  	{	
 	  	var temp = BigM;
 	  	  if(TargetStock[i] > TempStock[i]) // check si ville à besoin de stock
-	  	  {  	
-	  	  
+	  	  {  		  	  
 	  	  	write("La ville a besoin : "+i+"\n")
 	  	    for(var j = 1 ; j<=NbTowns; j++) // cherche ville qui peut fournir un lot à moindre cout
 	  		{   		  	      		
 	  		  if(CostBetweenTowns[i][j]<=temp && TempStock[j]>TargetStock[j] && CostBetweenTowns[i][j]>0)
 	  		  {	  	
-	  		  write("La ville peut donner à celle qui a besoin : "+j)	  
-	  		   temp = CostBetweenTowns[j][i];    
-	  		   destinataire =i;
-	  		   expediteur = j;	  	   			
+		  		  write("La ville peut donner à celle qui a besoin : "+j)	  
+		  		  temp = CostBetweenTowns[j][i];    
+		  		  destinataire =i;
+		  		  expediteur = j;	  	   			
 	  		  }  		    	  		  	  		  
    			}
+   				TempStock[expediteur] -= 3;
    				TempStock[destinataire] += 3;
    				Flots[expediteur][destinataire] += 3;   		
-	  	  }  	    	  	   	
+	  	  }  	  	  
+	  	  if(TargetStock[i] <= TempStock[i]) //si la ville i (destinataire) est satisfaite, on passe à la suivante	  
+	  	  {
+	  	    i++;
+	  	  }	  	  	    	  	   	
 	  	}
+
+
 	  	
 	  	//Avoir le final stock de chaque ville
         for(var i = 1 ; i<=NbTowns; i++)
