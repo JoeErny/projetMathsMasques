@@ -21,6 +21,7 @@ float Stock[Towns]=...; //S le stock courant dans l’entrepôt #i
 // variables calcul____________________________________________________
 
 float TotalActualStock; //stock actuel total
+float TotalDemandPreviousYear; //stock de l'année derniere au total
 
 float TargetStock[Towns]; //Stock visé
 float FinalStock[Towns]; //Stock final
@@ -38,11 +39,8 @@ float NbPenality[Towns]; // penalité applique à la diffrence de stock final et s
 //_____________________________________________________________________
 execute{
   	
-	  	var TotalDemandPreviousYear = 0;
-	  	var TotalActualStock = 0;
-	  	
-	
-	  	
+
+	  
   		//Stock Actuel Total
 	  	for(var i = 1 ; i<=NbTowns; i++)
 	  	{
