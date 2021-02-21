@@ -4,6 +4,7 @@
  * Creation Date: 5 févr. 2021 at 16:18:11
  *********************************************/
 // constantes données__________________________________________________
+int BigM = 10000;
 int NbTowns = ...; //N le nombre d’entrepôts
 range Towns = 1..NbTowns;
 string TownsName[Towns]=...; //Nom des villes
@@ -25,6 +26,7 @@ float TotalDemandPreviousYear; //stock de l'année derniere au total
 
 float TargetStock[Towns]; //Stock visé
 float FinalStock[Towns]; //Stock final
+float TempStock[Towns]; // Stock temporaire
 
 float CostBetweenTowns[Towns][Towns]; //Prix de trajet entre 2 villes
 
@@ -69,35 +71,38 @@ execute{
 	  	
 	  	
 	  	//flots choix
-	  	var temp = 100;
+	  	
   		var destinataire = 1;
 	  	var expediteur = 1;
+	 
+	  	for(var x = 1 ; x<=NbTowns; x++)
+	  	{
+	  	  TempStock[x] = Stock[x];
+    	}	  	  
+	  	
+	  	
+	  	
 	  	
 	  	for(var i = 1 ; i<=NbTowns; i++)
-	  	{
-	
-	  	  if(TargetStock[i] > Stock[i]) // check si ville à besoin de stock
-	  	  {
+	  	{	
+	  	var temp = BigM;
+	  	  if(TargetStock[i] > TempStock[i]) // check si ville à besoin de stock
+	  	  {  	
+	  	  
+	  	  	write("La ville a besoin : "+i+"\n")
 	  	    for(var j = 1 ; j<=NbTowns; j++) // cherche ville qui peut fournir un lot à moindre cout
-	  		{  		  
-	  		  if(CostBetweenTowns[i][j]<temp && Stock[i]>TargetStock[i])
-	  		  {
-	  		    temp = CostBetweenTowns[i][j];
-	  		    
-	  		   	expediteur  =i;
-	  		   	destinataire = j;
-	  		  
-	  		    
-	   			
-	  		  }
-	  		  
-   		  	  		  	  		  
+	  		{   		  	      		
+	  		  if(CostBetweenTowns[i][j]<=temp && TempStock[j]>TargetStock[j] && CostBetweenTowns[i][j]>0)
+	  		  {	  	
+	  		  write("La ville peut donner à celle qui a besoin : "+j)	  
+	  		   temp = CostBetweenTowns[j][i];    
+	  		   destinataire =i;
+	  		   expediteur = j;	  	   			
+	  		  }  		    	  		  	  		  
    			}
-   				Flots[expediteur][destinataire] = 3; 
-   		
-   			
-	  	  }  	    
-	  	   	
+   				TempStock[destinataire] += 3;
+   				Flots[expediteur][destinataire] += 3;   		
+	  	  }  	    	  	   	
 	  	}
 	  	
 	  	//Avoir le final stock de chaque ville
