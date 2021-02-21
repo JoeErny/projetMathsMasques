@@ -38,8 +38,8 @@ float NbPenality[Towns]; // penalité applique à la diffrence de stock final et s
 //_____________________________________________________________________
 execute{
   	
-	  	TotalDemandPreviousYear = 0;
-	  	TotalActualStock = 0;
+	  	var TotalDemandPreviousYear = 0;
+	  	var TotalActualStock = 0;
 	  	
   		//Stock Actuel Total
 	  	for(var i = 1 ; i<=NbTowns; i++)
@@ -82,11 +82,9 @@ execute{
 	  		  if(CostBetweenTowns[i][j]<temp && Stock[i]>TargetStock[i])
 	  		  {
 	  		    temp = CostBetweenTowns[i][j];
-	  		    destinataire = i;
-	  		    expediteur = j;
+	   			 Flots[i][j] = 3;	
 	  		  }
-	  		  // choix fait
-   			  Flots[expediteur][destinataire] += 3;	  	  		  	  		  	  		  
+   		  	  		  	  		  	  		  
    			}
    			
 	  	  }  	    
@@ -97,7 +95,7 @@ execute{
         {
             var ajout;
             var debit;
-            for(x in Towns)
+            for(var x in Towns)
               {
                 ajout += Flots[x][i];
                 debit += Flots[i][x];
