@@ -25,14 +25,16 @@ float TotalActualStock; //stock actuel total
 float TotalDemandPreviousYear; //stock de l'année derniere au total
 
 float TargetStock[Towns]; //Stock visé
-float FinalStock[Towns]; //Stock final
-float TempStock[Towns]; // Stock temporaire
+float FinalStock[Towns]; // Stock temporaire
 
 float CostBetweenTowns[Towns][Towns]; //Prix de trajet entre 2 villes
 
 int Flots[Towns][Towns]; // nb lot envoyé (expéditeur) vers (destinataire)
-float NbPenality[Towns]; // penalité applique à la diffrence de stock final et stocxk visé ( peut etre décimal)
+int BoolFlots[Towns][Towns]; //y'a t-il un flot ?
+float NbPenalty[Towns]; // penalité applique à la diffrence de stock final et stocxk visé ( peut etre décimal)
 
+
+float TotalCost = 0;
 
 // variables de décision ______________________________________________
 
@@ -40,9 +42,7 @@ float NbPenality[Towns]; // penalité applique à la diffrence de stock final et s
 
 //_____________________________________________________________________
 execute{
-  	
-
-	  
+  	  
   		//Stock Actuel Total
 	  	for(var i = 1 ; i<=NbTowns; i++)
 	  	{
@@ -77,56 +77,69 @@ execute{
 	 
 	  	for(var x = 1 ; x<=NbTowns; x++)
 	  	{
-	  	  TempStock[x] = Stock[x];
+	  	  FinalStock[x] = Stock[x];
     	}	  	  
 	  	
+		var i = 1;
+	  	while(i<=NbTowns)
+		{	
+		  	var temp = BigM;
+		  	if(TargetStock[i] > FinalStock[i]) // check si ville à besoin de stock
+		  	{  		  	  
+		  		write("La ville a besoin : "+i+"\n")
+		  	    for(var j = 1 ; j<=NbTowns; j++) // cherche ville qui peut fournir un lot à moindre cout
+		  		{   		  	      		
+					if(CostBetweenTowns[i][j]<=temp && FinalStock[j]>TargetStock[j] && CostBetweenTowns[i][j]>0)
+					{	  	
+						write("La ville peut donner à celle qui a besoin : "+j)	  
+						temp = CostBetweenTowns[j][i];    
+						destinataire =i;
+						expediteur = j;	  	   			
+					}  		    	  		  	  		  
+	   			}
+				FinalStock[expediteur] -= 3;
+				FinalStock[destinataire] += 3;
+				Flots[expediteur][destinataire] += 3;   		
+			}  	  	  
 
-	var i = 1;
-  	while(i<=NbTowns)
-	  	{	
-	  	var temp = BigM;
-	  	  if(TargetStock[i] > TempStock[i]) // check si ville à besoin de stock
-	  	  {  		  	  
-	  	  	write("La ville a besoin : "+i+"\n")
-	  	    for(var j = 1 ; j<=NbTowns; j++) // cherche ville qui peut fournir un lot à moindre cout
-	  		{   		  	      		
-	  		  if(CostBetweenTowns[i][j]<=temp && TempStock[j]>TargetStock[j] && CostBetweenTowns[i][j]>0)
-	  		  {	  	
-		  		  write("La ville peut donner à celle qui a besoin : "+j)	  
-		  		  temp = CostBetweenTowns[j][i];    
-		  		  destinataire =i;
-		  		  expediteur = j;	  	   			
-	  		  }  		    	  		  	  		  
-   			}
-   				TempStock[expediteur] -= 3;
-   				TempStock[destinataire] += 3;
-   				Flots[expediteur][destinataire] += 3;   		
-	  	  }  	  	  
-	  	  if(TargetStock[i] <= TempStock[i]) //si la ville i (destinataire) est satisfaite, on passe à la suivante	  
-	  	  {
-	  	    i++;
-	  	  }	  	  	    	  	   	
-	  	}
-
-
-	  	
-	  	//Avoir le final stock de chaque ville
-        for(var i = 1 ; i<=NbTowns; i++)
-        {
-            var ajout;
-            var debit;
-            for(var x in Towns)
-              {
-                ajout += Flots[x][i];
-                debit += Flots[i][x];
-              }
-         
-            FinalStock[i] = Stock[i] + ajout - debit;
-        }
-
+			if(TargetStock[i] <= FinalStock[i]) //si la ville i (destinataire) est satisfaite, on passe à la suivante	  
+			{
+				i++;
+			}	  	  	    	  	   	
+		}
+		
+		
+		//Calculer les pénalités des villes
+		for(var i = 1 ; i<=NbTowns; i++)
+		{
+ 	  		if(FinalStock[i] < TargetStock[i])
+ 	  		{
+ 	  		  NbPenalty[i] = TargetStock[i] - FinalStock[i] ;
+ 	  		}
+		}
+		
+		
+		
+	
+		//Calculer coût total
+		for(var i = 1 ; i<=NbTowns; i++)
+		{
+		  for(var j = 1 ; j<=NbTowns; j++)
+		  {
+		    
+		    if(Flots[i][j]>0)
+		    {
+		      BoolFlots[i][j] = 1;
+		    }		    		
+		    	 TotalCost += (Flots[i][j] *Distance[i][j] *TransportCostPerUnitPerKm +  BoolFlots[i][j]*LoadCoast[i]);
+		  }
+		 
+		  TotalCost += (PenaltyUnderStockTarget * NbPenalty[i]);
+		}
+		
 }
 
-minimize sum(i in Towns,j in Towns) ((CostBetweenTowns[i][j] * Flots[i][j]) + (PenaltyUnderStockTarget * NbPenality[i]));
+minimize sum(i in Towns,j in Towns) ((CostBetweenTowns[i][j] * Flots[i][j]) + (PenaltyUnderStockTarget * NbPenalty[i]));
 
 
 subject to {
