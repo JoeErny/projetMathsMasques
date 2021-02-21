@@ -102,6 +102,7 @@ execute{
 				Flots[expediteur][destinataire] += 3;   		
 			}  	  	  
 
+//TODO CHANGER CA EN MINIMISER L'ECART
 			if(TargetStock[i] <= FinalStock[i]) //si la ville i (destinataire) est satisfaite, on passe à la suivante	  
 			{
 				i++;
