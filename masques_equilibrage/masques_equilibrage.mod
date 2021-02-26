@@ -21,10 +21,10 @@ dvar float+ transportCost;
 dvar float+ sMoins[Towns];
 dvar float+ sPlus[Towns];
 dvar boolean isChargement[Towns];
-dvar float+ flot[Towns][Towns];
+dvar int+ flot[Towns][Towns];
 dvar float+ targetStock[Towns];
 dvar float+ finalStock[Towns];
-dvar float+ nbLotsPerFlot[Towns][Towns];
+dvar int+ nbLotsPerFlot[Towns][Towns];
 
 minimize z;
 
@@ -60,13 +60,11 @@ subject to
    }
    
   //finalStock
-  forall(i in Towns) {
-    finalStock[i] == Stock[i] + sum(j in Towns) flot[j][i] - sum(j in Towns) flot[i][j];
-  }
+	forall(k in Towns) {
+	     finalStock[k] == Stock[k] + sum(i in Towns) flot[i][k] - sum(j in Towns) flot[k][j];
+	}
      
    
-  
-  
   
    //lien chargements flux
     forall(i in Towns)
