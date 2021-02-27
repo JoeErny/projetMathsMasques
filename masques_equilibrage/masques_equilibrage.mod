@@ -42,30 +42,33 @@ subject to
   
   	totalPenalties == sum(i in Towns) minusGap[i] * PenaltyUnderStockTarget;
   
-    //contrainte sur les flux de palettes
-    forall (i in Towns, j in Towns) 
-    {      
-     	 flow[i][j] == LotSize * quantityPerFlow[i][j];
-    }
+
   
     //contrainte sur le stock visé par rapport à la demande de l'année précédente
     forall( i in Towns) 
     {
   		 targetStock[i] == DemandPreviousYear[i] * (sum(j in Towns) Stock[j] / sum(j in Towns) DemandPreviousYear[j]);
     }
-     
-    //contrainte sur la faisabilité de l'échange 
-    forall(i in Towns)
-  	{
-      	 sum(j in Towns)flow[i][j] <= Stock[i] * doesHaveLoad[i];
-  	}  
-  	
-  	//contrainte sur le stock final par rapport au stock visé et ses écarts
+    
+    
+    //contrainte sur le stock final par rapport au stock visé et ses écarts
     forall(i in Towns) 
     {
        	 finalStock[i] == targetStock[i] + plusGap[i] - minusGap[i];
     }
+    
+   	//contrainte sur les flux de palettes
+    forall (i in Towns, j in Towns) 
+    {      
+     	 flow[i][j] == LotSize * quantityPerFlow[i][j];
+    } 
    
+    //contrainte sur la faisabilité de l'échange 
+    forall(i in Towns)
+  	{
+      	 sum(j in Towns)flow[i][j] <= Stock[i] * doesHaveLoad[i];
+  	}
+  	
     //contrainte sur le stock final par rapport aux échanges de palettes
 	forall(k in Towns) 
 	{
