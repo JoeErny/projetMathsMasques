@@ -1,78 +1,77 @@
+/*
+	***		TP: Equilibrage des stocks - MASKERO	***
+	*** 		Erny Joé & Jolivel Corentin			***
+*/
 
-// constantes données__________________________________________________
+// DONNEES
 
-int NbTowns = ...; //N le nombre d’entrepôts
+int NbTowns = ...; //nombre d’entrepôts
 range Towns = 1..NbTowns;
-string TownsName[Towns]=...; //Nom des villes
+float LotSize = ...; //taille lot de transport
+float PenaltyUnderStockTarget = ...; //la pénalité appliquée pour chaque unité de stock final inférieur au stock visé.
+float TransportCostPerUnitPerKm = ...; //coût de transport par unité transportée par km
+string TownsName[Towns]=...; //noms des villes
+float Stock[Towns]=...; //stock courant dans l’entrepôt i
+float DemandPreviousYear[Towns]=...; //demande de l'année précédente
+float LoadCoast[Towns]=...; //coût de chargement, par entrepôt i
+float Distance[Towns][Towns]=...; //distance de l’entrepôt i vers j
 
-float LotSize = ...; //T la taille lot de transport
+//VARIABLES DE DECISION
 
-float PenaltyUnderStockTarget = ...; //PS  la pénalité appliquée pour chaque unité de stock final inférieur au stock visé.
-float TransportCostPerUnitPerKm = ...; //CT le coût de transport par unité transportée par km
-float DemandPreviousYear[Towns]=...; //P
-float LoadCoast[Towns]=...; //CC le coût de chargement, par entrepôt #i
-float Distance[Towns][Towns]=...; //D la distance de l’entrepôt #i vers l’entrepôt #j
-float Stock[Towns]=...; //S le stock courant dans l’entrepôt #i
-
-dvar float z;
-dvar float+ penalty;
-dvar float+ chargementCost;
-dvar float+ transportCost;
-dvar float+ sMoins[Towns];
-dvar float+ sPlus[Towns];
-dvar boolean isChargement[Towns];
-dvar int+ flot[Towns][Towns];
+dvar float z; //somme des pénalités, coût de chargement et coût de transport
+dvar float+ totalLoadCost;
+dvar float+ totalTransportCost;
+dvar float+ totalPenalties;
+dvar boolean doesHaveLoad[Towns];
 dvar float+ targetStock[Towns];
 dvar float+ finalStock[Towns];
-dvar int+ nbLotsPerFlot[Towns][Towns];
+dvar float+ minusGap[Towns];
+dvar float+ plusGap[Towns];
+dvar int+ flow[Towns][Towns];
+dvar int+ quantityPerFlow[Towns][Towns];
 
 minimize z;
 
-
-
 subject to
 {
-  z == penalty + chargementCost + transportCost;
-   
-  penalty == sum(i in Towns) sMoins[i] * PenaltyUnderStockTarget;
+  	z == totalPenalties + totalLoadCost + totalTransportCost;
+    
+  	totalLoadCost == sum(i in Towns) doesHaveLoad[i]* LoadCoast[i];
   
-  chargementCost == sum(i in Towns) isChargement[i]* LoadCoast[i];
+ 	totalTransportCost ==  sum(i in Towns, j in Towns) TransportCostPerUnitPerKm * Distance[i][j] * flow[i][j];
   
-  transportCost ==  sum(i in Towns, j in Towns) TransportCostPerUnitPerKm * Distance[i][j] * flot[i][j];
+  	totalPenalties == sum(i in Towns) minusGap[i] * PenaltyUnderStockTarget;
   
+    //contrainte sur les flux de palettes
+    forall (i in Towns, j in Towns) 
+    {      
+     	 flow[i][j] == LotSize * quantityPerFlow[i][j];
+    }
   
-   //taille lots
-   forall (i in Towns, j in Towns) {      
-     flot[i][j] == LotSize* nbLotsPerFlot[i][j];
-   }
-   
-  
- //Dans 1 lot y'a 3 palettes. Un flot est une qte de palettes
-  
-  //stockVise
-  forall( i in Towns) {
-  	targetStock[i] == DemandPreviousYear[i] * (sum(j in Towns) Stock[j] / sum(j in Towns) DemandPreviousYear[j]);
-  }
-  
-    //stock final (physique) 
-  forall(i in Towns) {
-        finalStock[i] == targetStock[i] + sPlus[i] - sMoins[i];
-   }
-   
-  //finalStock
-	forall(k in Towns) {
-	     finalStock[k] == Stock[k] + sum(i in Towns) flot[i][k] - sum(j in Towns) flot[k][j];
-	}
+    //contrainte sur le stock visé par rapport à la demande de l'année précédente
+    forall( i in Towns) 
+    {
+  		 targetStock[i] == DemandPreviousYear[i] * (sum(j in Towns) Stock[j] / sum(j in Towns) DemandPreviousYear[j]);
+    }
      
-   
-  
-   //lien chargements flux
+    //contrainte sur la faisabilité de l'échange 
     forall(i in Towns)
   	{
-      sum(j in Towns)flot[i][j] <= Stock[i] * isChargement[i];
-  	}     
-    
-
-  
-
- }
+      	 sum(j in Towns)flow[i][j] <= Stock[i] * doesHaveLoad[i];
+  	}  
+  	
+  	//contrainte sur le stock final par rapport au stock visé et ses écarts
+    forall(i in Towns) 
+    {
+       	 finalStock[i] == targetStock[i] + plusGap[i] - minusGap[i];
+    }
+   
+    //contrainte sur le stock final par rapport aux échanges de palettes
+	forall(k in Towns) 
+	{
+	     finalStock[k] == Stock[k] + sum(i in Towns) flow[i][k] - sum(j in Towns) flow[k][j];
+	}  
+} 
+ 
+ 
+ 
